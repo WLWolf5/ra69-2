@@ -1,0 +1,14 @@
+
+config nlbwmon
+	option netlink_buffer_size '16777216'
+	option database_interval '1'
+	option protocol_database '/usr/share/nlbwmon/protocols'
+	list local_network '192.168.1.0/24'
+	list local_network 'lan'
+	option database_limit '0'
+	option database_compress '0'
+	option database_generations '0'
+	option commit_interval '12h'
+	option refresh_interval '5m'
+	option database_directory '/usr/share/nlbwmon'
+

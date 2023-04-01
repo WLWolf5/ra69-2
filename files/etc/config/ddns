@@ -1,0 +1,20 @@
+
+config ddns 'global'
+	option ddns_dateformat '%F %R'
+	option ddns_loglines '100'
+	option upd_privateip '0'
+
+config service 'Dynv6'
+	option use_ipv6 '1'
+	option service_name 'dynv6.com'
+	option enabled '1'
+	option lookup_host 'wlwolf.dynv6.net'
+	option domain 'wlwolf.dynv6.net'
+	option password 'GXiuTH9kmEqvTDMZK25VZcX64w7qox'
+	option interface 'wan'
+	option check_interval '24'
+	option check_unit 'hours'
+	option retry_count '3'
+	option ip_source 'interface'
+	option ip_interface 'pppoe-wan'
+
