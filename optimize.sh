@@ -38,6 +38,7 @@ cp -f patch/LRNG/* target/linux/generic/hack-$KERNEL_VER
 sed -i 's|pcdata(boardinfo.system or "?")|luci.sys.exec("uname -m") or "?"|g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 sed -i 's/or "1"%>/or "1"%> ( <%=luci.sys.exec("expr `cat \/sys\/class\/thermal\/thermal_zone0\/temp` \/ 1000") or "?"%> \&#8451; ) /g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 
+echo "net.netfilter.nf_conntrack_helper = 1" >>./package/kernel/linux/files/sysctl-nf-conntrack.conf
 
 # 可选配置
 
@@ -84,6 +85,57 @@ cp -f MG-LRU/* target/linux/generic/pending-5.10
 # TCP-BBRv2 (5.10)
 svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/BBRv2/kernel patch/tcp-bbr2-5.10 && rm -rf patch/tcp-bbr2-5.10/.svn
 cp -f patch/tcp-bbr2-5.10/* target/linux/generic/hack-5.10
+
+# Testing
+
+# 修复tools
+rm -rf tools/elfutils
+svn co https://github.com/openwrt/openwrt/trunk/tools/elfutils tools/elfutils
+rm -rf package/libs/elfutils
+svn co https://github.com/openwrt/openwrt/trunk/package/libs/elfutils package/libs/elfutils
+sed -i '/patchelf pkgconf/i\tools-y += ucl upx' ./tools/Makefile
+sed -i '\/autoconf\/compile :=/i\$(curdir)/upx/compile := $(curdir)/ucl/compile' ./tools/Makefile
+svn co https://github.com/Lienol/openwrt/branches/master/tools/ucl tools/ucl
+svn co https://github.com/Lienol/openwrt/branches/master/tools/upx tools/upx
+wget -qO - https://github.com/openwrt/openwrt/commit/b839f3d5.patch | patch -p1
+wget -qO - https://github.com/openwrt/openwrt/commit/aa95787e.patch | patch -p1
+wget -qO - https://github.com/openwrt/openwrt/commit/29d7d6a8.patch | patch -p1
+
+wget -qO - https://github.com/openwrt/openwrt/commit/c21a3570.patch | patch -p1
+
+wget -qO - https://github.com/openwrt/openwrt/commit/bbf39d07.patch | patch -p1
+
+# Switch
+rm -rf package/network/services/dnsmasq
+svn co https://github.com/openwrt/openwrt/trunk/package/network/services/dnsmasq package/network/services/dnsmasq
+curl -Lo feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js https://raw.githubusercontent.com/openwrt/luci/master/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
+
+# ShortCut-FE
+wget -qO - https://github.com/coolsnowwolf/lede/commit/e517080.patch | patch -p1
+wget -qO - https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/firewall/luci-app-firewall_add_sfe_switch.patch | patch -p1
+
+# SSL
+rm -rf package/libs/mbedtls
+svn co https://github.com/immortalwrt/immortalwrt/trunk/package/libs/mbedtls package/libs/mbedtls
+rm -rf package/libs/openssl
+svn co https://github.com/immortalwrt/immortalwrt/trunk/package/libs/openssl package/libs/openssl
+
+# 替换Download脚本
+curl -Lo scripts/download.pl https://raw.githubusercontent.com/immortalwrt/immortalwrt/master/scripts/download.pl
+curl -Lo include/download.mk https://raw.githubusercontent.com/immortalwrt/immortalwrt/master/include/download.mk
+sed -i '/unshift/d' scripts/download.pl
+sed -i '/mirror02/d' scripts/download.pl
+
+# rpcd
+sed -i 's/option timeout 30/option timeout 60/g' package/system/rpcd/files/rpcd.config
+
+# AutoCore
+rm -rf package/lean/autocore
+mkdir package/openwrt-add
+svn co https://github.com/QiuSimons/OpenWrt-Add/trunk/autocore package/openwrt-add/autocore
+sed -i 's/"getTempInfo" /"getTempInfo", "getCPUBench", "getCPUUsage" /g' package/new/autocore/files/generic/luci-mod-status-autocore.json
+sed -i '/"$threads"/d' package/new/autocore/files/x86/autocore
+
 
 # Openwrt扩展软件包
 #git clone https://github.com/kiddin9/openwrt-packages.git package/openwrt-packages
