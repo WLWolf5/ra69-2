@@ -1,60 +1,92 @@
 #!/bin/bash
+KERNEL_VER="5.15"
+
+# 引入本机预设
+svn co https://github.com/WLWolf5/test6/trunk/files
+# 引入Patch
+svn co https://github.com/WLWolf5/test6/trunk/patch && rm -rf patch/.svn
+
+# 通用
 
 # 修复Package/Makefile编译错误
 sed -i s#system/opkg#opkg#g package/Makefile
-# 本机预设
-#svn co https://github.com/WLWolf5/wrtcompiler/trunk/config files
-# 个人Patch
-#svn co https://github.com/WLWolf5/wrtcompiler/trunk/patch
-
-# 设置为schedutil调度(根据内核修改版本)
-sed -i '/CONFIG_CPU_FREQ_GOV_ONDEMAND=y/a\CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y' target/linux/ipq807x/config-5.15
-sed -i 's/# CONFIG_CPU_FREQ_GOV_POWERSAVE is not set/CONFIG_CPU_FREQ_GOV_POWERSAVE=y/g' target/linux/ipq807x/config-5.15
-sed -i 's/# CONFIG_CPU_FREQ_STAT is not set/CONFIG_CPU_FREQ_STAT=y/g' target/linux/ipq807x/config-5.15
+# 不知道什么优化
+sed -i 's/Os/O2 -Wl,--gc-sections/g' include/target.mk
+# 修复arm64型号
+wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/master/target/linux/generic/hack-5.10/312-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch -P target/linux/generic/hack-$KERNEL_VER
+# 优化toolchain/musl
+wget -qO - https://github.com/openwrt/openwrt/commit/8249a8c.patch | patch -p1
+# 修复package/system/fstool
+wget -qO - https://github.com/coolsnowwolf/lede/commit/8a4db76.patch | patch -p1
+# schedutil调度
+sed -i '/CONFIG_CPU_FREQ_GOV_ONDEMAND=y/a\CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y' target/linux/ipq807x/config-$KERNEL_VER
+sed -i 's/# CONFIG_CPU_FREQ_GOV_POWERSAVE is not set/CONFIG_CPU_FREQ_GOV_POWERSAVE=y/g' target/linux/ipq807x/config-$KERNEL_VER
+sed -i 's/# CONFIG_CPU_FREQ_STAT is not set/CONFIG_CPU_FREQ_STAT=y/g' target/linux/ipq807x/config-$KERNEL_VER
 # 修改连接数上限
 sed -i '/customized in this file/a net.netfilter.nf_conntrack_max=65535' package/base-files/files/etc/sysctl.conf
 # 设置默认NTP服务器
 sed -i "s/0.openwrt.pool.ntp.org/ntp.aliyun.com/g" package/base-files/files/bin/config_generate
 sed -i "s/1.openwrt.pool.ntp.org/cn.ntp.org.cn/g" package/base-files/files/bin/config_generate
 sed -i "s/2.openwrt.pool.ntp.org/cn.pool.ntp.org/g" package/base-files/files/bin/config_generate
-
-# 优化
-
-#不知道什么优化
-sed -i 's/Os/O2 -Wl,--gc-sections/g' include/target.mk
-#改动toolchain/musl/common.mk
-wget -qO - https://github.com/openwrt/openwrt/commit/8249a8c.patch | patch -p1
-# fstool patch
-wget -qO - https://github.com/coolsnowwolf/lede/commit/8a4db76.patch | patch -p1
-
-#TCP BBRv2
-curl -LO https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/BBRv2/openwrt/package/kernel/linux/files/sysctl-tcp-bbr2.conf
-cp -f sysctl-tcp-bbr2.conf package/kernel/linux/files
-svn co https://github.com/WLWolf5/wrtcompiler/trunk/patch/tcp-bbr2 patch/tcp-bbr2
-rm -rf patch/tcp-bbr2/.svn
-#rm -rf tcp-bbr2/693-08-net-tcp_bbr-v2-introduce-ca_ops-skb_marked_lost-CC-m.patch
-#rm -rf tcp-bbr2/693-14-net-tcp-re-generalize-TSO-sizing-in-TCP-CC-module-AP.patch
-#rm -rf tcp-bbr2/693-16-net-tcp_bbr-v2-BBRv2-bbr2-congestion-control-for-Lin.patch
-#rm -rf tcp-bbr2/693-17-net-tcp_bbr-v2-remove-unnecessary-rs.delivered_ce-lo.patch
-#rm -rf tcp-bbr2/693-18-net-tcp_bbr-v2-remove-field-bw_rtts-that-is-unused-i.patch
-#rm -rf tcp-bbr2/693-19-net-tcp_bbr-v2-remove-cycle_rand-parameter-that-is-u.patch
-#rm -rf tcp-bbr2/693-20-net-tcp_bbr-v2-don-t-assume-prior_cwnd-was-set-enter.patch
-#rm -rf tcp-bbr2/693-21-net-tcp_bbr-v2-Fix-missing-ECT-markings-on-retransmi.patch
-#package/kernel/linux/modules/netsupport.mk添加bbr2支持
+# 添加BBRv2支持(修改package/kernel/linux/modules/netsupport.mk)
+wget https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/BBRv2/openwrt/package/kernel/linux/files/sysctl-tcp-bbr2.conf -P package/kernel/linux/files
 wget -qO - https://github.com/openwrt/openwrt/commit/7db9763.patch | patch -p1
+# 优化Linux Ramdom Number Generator
+svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/LRNG patch/LRNG && rm -rf patch/LRNG/.svn
+cp -f patch/LRNG/* target/linux/generic/hack-$KERNEL_VER
+# 添加核心温度的显示
+sed -i 's|pcdata(boardinfo.system or "?")|luci.sys.exec("uname -m") or "?"|g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
+sed -i 's/or "1"%>/or "1"%> ( <%=luci.sys.exec("expr `cat \/sys\/class\/thermal\/thermal_zone0\/temp` \/ 1000") or "?"%> \&#8451; ) /g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 
+
+# 可选配置
 
 # 修改默认主机名
 #sed -i 's/OpenWrt/Redmi-AX6/g' package/base-files/files/bin/config_generate
 # 设置默认ip
 #sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/bin/config_generate
 
-#补充驱动
-#svn co https://github.com/Boos4721/openwrt/trunk/package/firmware/ath11k-board package/openwrt-packages/ath11k-board
+
+# TCP流量优化
+wget https://raw.githubusercontent.com/WLWolf5/test6/main/patch/780-v5.17-tcp-defer-skb-freeing-after-socket-lock-is-released.patch -P target/linux/generic/backport-5.15
+wget https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/backport/TCP/780-v5.17-tcp-defer-skb-freeing-after-socket-lock-is-released.patch -P target/linux/generic/backport-5.10
+
+# 补充驱动 5.15
+rm -rf package/qca/nss/qca-nss-crypto
+rm -rf package/qca/nss/qca-nss-cfi
+rm -rf package/qca/nss/qca-nss-drv
+rm -rf package/qca/qca-ssdk
+rm -rf package/qca/nss/qca-nss-dp
+
+rm -rf package/qca/firmware/nss-firmware
+rm -rf package/firmware/ath11k-firmware
+
+svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-crypto package/kernel/qca-nss-crypto
+svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-cfi package/kernel/qca-nss-cfi
+svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-drv package/kernel/qca-nss-drv
+svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-ssdk package/kernel/qca-ssdk
+svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-dp package/kernel/qca-nss-dp
+
+curl -Lo package/firmware/ipq-wifi/board-redmi_ax6.ipq8074 https://github.com/robimarko/openwrt/raw/ipq807x-5.15-pr-nss-crypto/package/firmware/ipq-wifi/board-redmi_ax6.ipq8074
+svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-drv/package/firmware/nss-firmware package/firmware/nss-firmware
+svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-drv/package/firmware/ath11k-firmware package/firmware/ath11k-firmware
+
+# TCP-BBRv2 (5.15)
+cp -f patch/tcp-bbr2/* target/linux/generic/hack-5.15
+
+# Bug修复 (5.10)
+wget https://raw.githubusercontent.com/WLWolf5/test6/main/patch/104-RFC-ath11k-fix-peer-addition-deletion-error-on-sta-band-migration.patch -P package/kernel/mac80211/patches/ath11k
+
+# 优化内存管理 (5.10)
+svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/backport/MG-LRU patch/MG-LRU && rm -rf patch/MG-LRU/.svn
+cp -f MG-LRU/* target/linux/generic/pending-5.10
+
+# TCP-BBRv2 (5.10)
+svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/BBRv2/kernel patch/tcp-bbr2-5.10 && rm -rf patch/tcp-bbr2-5.10/.svn
+cp -f patch/tcp-bbr2-5.10/* target/linux/generic/hack-5.10
 
 # Openwrt扩展软件包
 #git clone https://github.com/kiddin9/openwrt-packages.git package/openwrt-packages
-
 # 扩展软件包冲突处理
 #rm -rf package/openwrt-packages/miniupnpd
 #rm -rf package/openwrt-packages/miniupnpd-nft
@@ -63,7 +95,7 @@ wget -qO - https://github.com/openwrt/openwrt/commit/7db9763.patch | patch -p1
 #rm -rf package/openwrt-packages/firewall
 #rm -rf package/openwrt-packages/shortcut-fe
 
-#Custom Theme
+# 主题下载
 #svn co https://github.com/harry3633/openwrt-package/trunk/lienol/luci-theme-bootstrap-mod package/openwrt-packages/luci-theme-bootstrap-mod
 #svn co https://github.com/harry3633/openwrt-package/trunk/lienol/luci-theme-argon-light-mod package/openwrt-packages/luci-theme-argon-light-mod
 #svn co https://github.com/harry3633/openwrt-package/trunk/lienol/luci-theme-argon-dark-mod package/openwrt-packages/luci-theme-argon-dark-mod
