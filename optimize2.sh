@@ -88,7 +88,7 @@ wget https://raw.githubusercontent.com/WLWolf5/test6/main/patch/104-RFC-ath11k-f
 
 # 优化内存管理 (5.10)
 svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/backport/MG-LRU patch/MG-LRU && rm -rf patch/MG-LRU/.svn
-cp -f MG-LRU/* target/linux/generic/pending-5.10
+cp -f patch/MG-LRU/* target/linux/generic/pending-5.10
 
 
 # Testing
