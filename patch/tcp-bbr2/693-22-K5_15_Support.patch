@@ -16,7 +16,7 @@ index 69959bf..1a58653 100644
  
  	tp->lost += tcp_skb_pcount(skb);
 -	if (ca_ops->skb_marked_lost)
--	ca_ops->skb_marked_lost(sk, skb);
+-		ca_ops->skb_marked_lost(sk, skb);
  }
  
  void tcp_mark_skb_lost(struct sock *sk, struct sk_buff *skb)
