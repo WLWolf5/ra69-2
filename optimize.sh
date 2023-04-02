@@ -38,7 +38,8 @@ cp -f patch/LRNG/* target/linux/generic/hack-$KERNEL_VER
 sed -i 's|pcdata(boardinfo.system or "?")|luci.sys.exec("uname -m") or "?"|g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 sed -i 's/or "1"%>/or "1"%> ( <%=luci.sys.exec("expr `cat \/sys\/class\/thermal\/thermal_zone0\/temp` \/ 1000") or "?"%> \&#8451; ) /g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 
-echo "net.netfilter.nf_conntrack_helper = 1" >>./package/kernel/linux/files/sysctl-nf-conntrack.conf
+# LEDE无需
+#echo "net.netfilter.nf_conntrack_helper = 1" >>./package/kernel/linux/files/sysctl-nf-conntrack.conf
 
 # 可选配置
 
@@ -49,42 +50,55 @@ echo "net.netfilter.nf_conntrack_helper = 1" >>./package/kernel/linux/files/sysc
 
 
 # TCP流量优化
-wget https://raw.githubusercontent.com/WLWolf5/test6/main/patch/780-v5.17-tcp-defer-skb-freeing-after-socket-lock-is-released.patch -P target/linux/generic/backport-5.15
-wget https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/backport/TCP/780-v5.17-tcp-defer-skb-freeing-after-socket-lock-is-released.patch -P target/linux/generic/backport-5.10
+if [ "$KERNEL_VER" == "5.15" ]; then
+    wget https://raw.githubusercontent.com/WLWolf5/test6/main/patch/780-v5.17-tcp-defer-skb-freeing-after-socket-lock-is-released.patch -P target/linux/generic/backport-5.15
+elif [ "$KERNEL_VER" == "5.10" ]; then
+    wget https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/backport/TCP/780-v5.17-tcp-defer-skb-freeing-after-socket-lock-is-released.patch -P target/linux/generic/backport-5.10
+fi
 
 # 补充驱动 5.15
-rm -rf package/qca/nss/qca-nss-crypto
-rm -rf package/qca/nss/qca-nss-cfi
-rm -rf package/qca/nss/qca-nss-drv
-rm -rf package/qca/qca-ssdk
-rm -rf package/qca/nss/qca-nss-dp
+if [ "$KERNEL_VER" == "5.15" ]; then
+    rm -rf package/qca/nss/qca-nss-crypto
+    rm -rf package/qca/nss/qca-nss-cfi
+    rm -rf package/qca/nss/qca-nss-drv
+    rm -rf package/qca/qca-ssdk
+    rm -rf package/qca/nss/qca-nss-dp
 
-rm -rf package/qca/firmware/nss-firmware
-rm -rf package/firmware/ath11k-firmware
+    rm -rf package/qca/firmware/nss-firmware
+    rm -rf package/firmware/ath11k-firmware
 
-svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-crypto package/kernel/qca-nss-crypto
-svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-cfi package/kernel/qca-nss-cfi
-svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-drv package/kernel/qca-nss-drv
-svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-ssdk package/kernel/qca-ssdk
-svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-dp package/kernel/qca-nss-dp
+    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-crypto package/kernel/qca-nss-crypto
+    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-cfi package/kernel/qca-nss-cfi
+    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-drv package/kernel/qca-nss-drv
+    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-ssdk package/kernel/qca-ssdk
+    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-dp package/kernel/qca-nss-dp
 
-curl -Lo package/firmware/ipq-wifi/board-redmi_ax6.ipq8074 https://github.com/robimarko/openwrt/raw/ipq807x-5.15-pr-nss-crypto/package/firmware/ipq-wifi/board-redmi_ax6.ipq8074
-svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-drv/package/firmware/nss-firmware package/firmware/nss-firmware
-svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-drv/package/firmware/ath11k-firmware package/firmware/ath11k-firmware
+    curl -Lo package/firmware/ipq-wifi/board-redmi_ax6.ipq8074 https://github.com/robimarko/openwrt/raw/ipq807x-5.15-pr-nss-crypto/package/firmware/ipq-wifi/board-redmi_ax6.ipq8074
+    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-drv/package/firmware/nss-firmware package/firmware/nss-firmware
+    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-drv/package/firmware/ath11k-firmware package/firmware/ath11k-firmware
+fi
 
 # TCP-BBRv2 (5.15)
-cp -f patch/tcp-bbr2/* target/linux/generic/hack-5.15
+if [ "$KERNEL_VER" == "5.15" ]; then
+    cp -f patch/tcp-bbr2/* target/linux/generic/hack-5.15
+fi
 
 # Bug修复 (5.10)
-wget https://raw.githubusercontent.com/WLWolf5/test6/main/patch/104-RFC-ath11k-fix-peer-addition-deletion-error-on-sta-band-migration.patch -P package/kernel/mac80211/patches/ath11k
+if [ "$KERNEL_VER" == "5.10" ]; then
+    wget https://raw.githubusercontent.com/WLWolf5/test6/main/patch/104-RFC-ath11k-fix-peer-addition-deletion-error-on-sta-band-migration.patch -P package/kernel/mac80211/patches/ath11k
+fi
 
 # 优化内存管理 (5.10)
-svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/backport/MG-LRU patch/MG-LRU && rm -rf patch/MG-LRU/.svn
-cp -f MG-LRU/* target/linux/generic/pending-5.10
+if [ "$KERNEL_VER" == "5.10" ]; then
+    svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/backport/MG-LRU patch/MG-LRU && rm -rf patch/MG-LRU/.svn
+    cp -f MG-LRU/* target/linux/generic/pending-5.10
+fi
 
 # TCP-BBRv2 (5.10)
-svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/BBRv2/kernel patch/tcp-bbr2-5.10 && rm -rf patch/tcp-bbr2-5.10/.svn
-cp -f patch/tcp-bbr2-5.10/* target/linux/generic/hack-5.10
+if [ "$KERNEL_VER" == "5.10" ]; then
+    svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/BBRv2/kernel patch/tcp-bbr2-5.10 && rm -rf patch/tcp-bbr2-5.10/.svn
+    cp -f patch/tcp-bbr2-5.10/* target/linux/generic/hack-5.10
+fi
 
 # Testing
 
@@ -105,7 +119,7 @@ wget -qO - https://github.com/openwrt/openwrt/commit/c21a3570.patch | patch -p1
 
 wget -qO - https://github.com/openwrt/openwrt/commit/bbf39d07.patch | patch -p1
 
-# Switch
+# Dnsmasq
 rm -rf package/network/services/dnsmasq
 svn co https://github.com/openwrt/openwrt/trunk/package/network/services/dnsmasq package/network/services/dnsmasq
 curl -Lo feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js https://raw.githubusercontent.com/openwrt/luci/master/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
