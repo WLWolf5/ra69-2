@@ -35,9 +35,10 @@ sed -i "s/2.openwrt.pool.ntp.org/cn.pool.ntp.org/g" package/base-files/files/bin
 # 添加BBRv2支持(修改package/kernel/linux/modules/netsupport.mk)
 wget https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/BBRv2/openwrt/package/kernel/linux/files/sysctl-tcp-bbr2.conf -P package/kernel/linux/files
 wget -qO - https://github.com/openwrt/openwrt/commit/7db9763.patch | patch -p1
-# 优化Linux Ramdom Number Generator
+# 优化Linux Ramdom Number Generator (Both)
 svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/LRNG patch/LRNG && rm -rf patch/LRNG/.svn
-cp -f patch/LRNG/* target/linux/generic/hack-$KERNEL_VER
+cp -f patch/LRNG/* target/linux/generic/hack-5.10
+cp -f patch/LRNG/* target/linux/generic/hack-5.15
 # 添加核心温度的显示
 sed -i 's|pcdata(boardinfo.system or "?")|luci.sys.exec("uname -m") or "?"|g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 sed -i 's/or "1"%>/or "1"%> ( <%=luci.sys.exec("expr `cat \/sys\/class\/thermal\/thermal_zone0\/temp` \/ 1000") or "?"%> \&#8451; ) /g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
