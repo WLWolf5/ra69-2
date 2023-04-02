@@ -17,8 +17,6 @@ wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/master/target/lin
 wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/master/target/linux/generic/hack-5.10/312-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch -P target/linux/generic/hack-5.15
 # 优化toolchain/musl
 wget -qO - https://github.com/openwrt/openwrt/commit/8249a8c.patch | patch -p1
-# 修复package/system/fstool
-wget -qO - https://github.com/coolsnowwolf/lede/commit/8a4db76.patch | patch -p1
 # schedutil调度 (Both)
 sed -i '/CONFIG_CPU_FREQ_GOV_ONDEMAND=y/a\CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y' target/linux/ipq807x/config-5.10
 sed -i 's/# CONFIG_CPU_FREQ_GOV_POWERSAVE is not set/CONFIG_CPU_FREQ_GOV_POWERSAVE=y/g' target/linux/ipq807x/config-5.10
@@ -39,7 +37,7 @@ wget -qO - https://github.com/openwrt/openwrt/commit/7db9763.patch | patch -p1
 svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/LRNG patch/LRNG && rm -rf patch/LRNG/.svn
 cp -f patch/LRNG/* target/linux/generic/hack-5.10
 cp -f patch/LRNG/* target/linux/generic/hack-5.15
-# 添加核心温度的显示
+# 添加核心温度的显示 (LEDE-Luci)
 sed -i 's|pcdata(boardinfo.system or "?")|luci.sys.exec("uname -m") or "?"|g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 sed -i 's/or "1"%>/or "1"%> ( <%=luci.sys.exec("expr `cat \/sys\/class\/thermal\/thermal_zone0\/temp` \/ 1000") or "?"%> \&#8451; ) /g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 
@@ -91,10 +89,7 @@ sed -i '\/autoconf\/compile :=/i\$(curdir)/upx/compile := $(curdir)/ucl/compile'
 svn co https://github.com/Lienol/openwrt/branches/master/tools/ucl tools/ucl
 svn co https://github.com/Lienol/openwrt/branches/master/tools/upx tools/upx
 wget -qO - https://github.com/openwrt/openwrt/commit/b839f3d5.patch | patch -p1
-wget -qO - https://github.com/openwrt/openwrt/commit/aa95787e.patch | patch -p1
 wget -qO - https://github.com/openwrt/openwrt/commit/29d7d6a8.patch | patch -p1
-
-wget -qO - https://github.com/openwrt/openwrt/commit/c21a3570.patch | patch -p1
 
 wget -qO - https://github.com/openwrt/openwrt/commit/bbf39d07.patch | patch -p1
 
