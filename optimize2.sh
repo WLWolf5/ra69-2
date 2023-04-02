@@ -6,6 +6,12 @@ svn co https://github.com/WLWolf5/test6/trunk/files
 # 引入Patch
 svn co https://github.com/WLWolf5/test6/trunk/patch && rm -rf patch/.svn
 
+# 临时修复
+sed -i 's|https://source.codeaurora.org/quic/cc-qrdk|https://git.codelinaro.org/clo/qsdk|' package/qca/qca-ssdk-shell/Makefile
+sed -i 's|https://source.codeaurora.org/quic/cc-qrdk|https://git.codelinaro.org/clo/qsdk|' package/qca/nss/qca-nss-drv-64/Makefile
+sed -i 's|https://source.codeaurora.org/quic/cc-qrdk|https://git.codelinaro.org/clo/qsdk|' package/qca/nss/qca-nss-ecm-64/Makefile
+sed -i 's|https://source.codeaurora.org/quic/cc-qrdk|https://git.codelinaro.org/clo/qsdk|' package/qca/nss/qca-nss-clients-64/Makefile
+
 # 通用
 
 # 修复Package/Makefile编译错误
