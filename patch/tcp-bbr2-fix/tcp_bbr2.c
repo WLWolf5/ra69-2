@@ -2635,7 +2635,6 @@ static struct tcp_congestion_ops tcp_bbr2_cong_ops __read_mostly = {
 	.init		= bbr2_init,
 	.cong_control	= bbr2_main,
 	.sndbuf_expand	= bbr_sndbuf_expand,
-	.skb_marked_lost = bbr2_skb_marked_lost,
 	.undo_cwnd	= bbr2_undo_cwnd,
 	.cwnd_event	= bbr_cwnd_event,
 	.ssthresh	= bbr2_ssthresh,
