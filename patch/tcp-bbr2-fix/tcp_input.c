@@ -1076,8 +1076,6 @@ static void tcp_notify_skb_loss_event(struct tcp_sock *tp, const struct sk_buff 
 	const struct tcp_congestion_ops *ca_ops = inet_csk(sk)->icsk_ca_ops;
 
 	tp->lost += tcp_skb_pcount(skb);
-	if (ca_ops->skb_marked_lost)
-	ca_ops->skb_marked_lost(sk, skb);
 }
 
 void tcp_mark_skb_lost(struct sock *sk, struct sk_buff *skb)
