@@ -58,21 +58,9 @@ fi
 
 # 补充驱动 5.15
 if [ "$KERNEL_VER" == "5.15" ]; then
-    rm -rf package/qca/nss/qca-nss-crypto
-    rm -rf package/qca/nss/qca-nss-cfi
-    rm -rf package/qca/nss/qca-nss-drv
-    rm -rf package/qca/qca-ssdk
-    rm -rf package/qca/nss/qca-nss-dp
-
     rm -rf package/qca/firmware/nss-firmware
     rm -rf package/firmware/ath11k-firmware
-
-    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-crypto package/kernel/qca-nss-crypto
-    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-cfi package/kernel/qca-nss-cfi
-    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-drv package/kernel/qca-nss-drv
-    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-ssdk package/kernel/qca-ssdk
-    svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-crypto/package/kernel/qca-nss-dp package/kernel/qca-nss-dp
-
+    
     curl -Lo package/firmware/ipq-wifi/board-redmi_ax6.ipq8074 https://github.com/robimarko/openwrt/raw/ipq807x-5.15-pr-nss-crypto/package/firmware/ipq-wifi/board-redmi_ax6.ipq8074
     svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-drv/package/firmware/nss-firmware package/firmware/nss-firmware
     svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-drv/package/firmware/ath11k-firmware package/firmware/ath11k-firmware
@@ -129,8 +117,6 @@ wget -qO - https://github.com/coolsnowwolf/lede/commit/e517080.patch | patch -p1
 wget -qO - https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/firewall/luci-app-firewall_add_sfe_switch.patch | patch -p1
 
 # SSL
-rm -rf package/libs/mbedtls
-svn co https://github.com/immortalwrt/immortalwrt/trunk/package/libs/mbedtls package/libs/mbedtls
 rm -rf package/libs/openssl
 svn co https://github.com/immortalwrt/immortalwrt/trunk/package/libs/openssl package/libs/openssl
 
