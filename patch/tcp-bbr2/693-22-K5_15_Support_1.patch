@@ -1,0 +1,22 @@
+From c9aa383e02c2a8280b11871b0c12d722a466211a Mon Sep 17 00:00:00 2001
+From: WLWolf5 <43511929+WLWolf5@users.noreply.github.com>
+Date: Sun, 2 Apr 2023 18:14:06 +0800
+Subject: [PATCH] Update tcp_input.c
+
+---
+ net/ipv4/tcp_input.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 69959bf..1a58653 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -1076,8 +1076,6 @@ static void tcp_notify_skb_loss_event(struct tcp_sock *tp, const struct sk_buff
+ 	const struct tcp_congestion_ops *ca_ops = inet_csk(sk)->icsk_ca_ops;
+ 
+ 	tp->lost += tcp_skb_pcount(skb);
+-	if (ca_ops->skb_marked_lost)
+-	ca_ops->skb_marked_lost(sk, skb);
+ }
+ 
+ void tcp_mark_skb_lost(struct sock *sk, struct sk_buff *skb)
