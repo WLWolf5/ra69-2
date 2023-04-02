@@ -1,13 +1,15 @@
 From c9aa383e02c2a8280b11871b0c12d722a466211a Mon Sep 17 00:00:00 2001
 From: WLWolf5 <43511929+WLWolf5@users.noreply.github.com>
 Date: Sun, 2 Apr 2023 18:14:06 +0800
-Subject: [PATCH] Update tcp_input.c
+Subject: [PATCH] Update tcp_input.c tcp_bbr2.c
 
 ---
  net/ipv4/tcp_input.c | 2 --
- 1 file changed, 2 deletions(-)
+ net/ipv4/tcp_bbr2.c | 1 -
+ 2 file changed, 3 deletions(-)
 
 diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+diff --git a/net/ipv4/tcp_bbr2.c b/net/ipv4/tcp_bbr2.c
 index 69959bf..1a58653 100644
 --- a/net/ipv4/tcp_input.c
 +++ b/net/ipv4/tcp_input.c
@@ -20,3 +22,13 @@ index 69959bf..1a58653 100644
  }
  
  void tcp_mark_skb_lost(struct sock *sk, struct sk_buff *skb)
+--- a/net/ipv4/tcp_bbr2.c
++++ b/net/ipv4/tcp_bbr2.c
+@@ -2635,7 +2635,6 @@ static struct tcp_congestion_ops tcp_bbr2_cong_ops __read_mostly = {
+ 	.init		= bbr2_init,
+ 	.cong_control	= bbr2_main,
+ 	.sndbuf_expand	= bbr_sndbuf_expand,
+-	.skb_marked_lost = bbr2_skb_marked_lost,
+ 	.undo_cwnd	= bbr2_undo_cwnd,
+ 	.cwnd_event	= bbr_cwnd_event,
+ 	.ssthresh	= bbr2_ssthresh,
