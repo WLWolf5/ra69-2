@@ -138,8 +138,8 @@ sed -i 's/option timeout 30/option timeout 60/g' package/system/rpcd/files/rpcd.
 rm -rf package/lean/autocore
 mkdir package/openwrt-add
 svn co https://github.com/QiuSimons/OpenWrt-Add/trunk/autocore package/openwrt-add/autocore
-sed -i 's/"getTempInfo" /"getTempInfo", "getCPUBench", "getCPUUsage" /g' package/new/autocore/files/generic/luci-mod-status-autocore.json
-sed -i '/"$threads"/d' package/new/autocore/files/x86/autocore
+sed -i 's/"getTempInfo" /"getTempInfo", "getCPUBench", "getCPUUsage" /g' package/openwrt-add/autocore/files/generic/luci-mod-status-autocore.json
+sed -i '/"$threads"/d' package/openwrt-add/autocore/files/x86/autocore
 
 
 # Openwrt扩展软件包
