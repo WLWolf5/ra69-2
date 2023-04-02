@@ -91,7 +91,7 @@ fi
 # 优化内存管理 (5.10)
 if [ "$KERNEL_VER" == "5.10" ]; then
     svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/backport/MG-LRU patch/MG-LRU && rm -rf patch/MG-LRU/.svn
-    cp -f MG-LRU/* target/linux/generic/pending-5.10
+    cp -f patch/MG-LRU/* target/linux/generic/pending-5.10
 fi
 
 # TCP-BBRv2 (5.10)
