@@ -89,7 +89,6 @@ sed -i '\/autoconf\/compile :=/i\$(curdir)/upx/compile := $(curdir)/ucl/compile'
 svn co https://github.com/Lienol/openwrt/branches/master/tools/ucl tools/ucl
 svn co https://github.com/Lienol/openwrt/branches/master/tools/upx tools/upx
 wget -qO - https://github.com/openwrt/openwrt/commit/b839f3d5.patch | patch -p1
-wget -qO - https://github.com/openwrt/openwrt/commit/29d7d6a8.patch | patch -p1
 
 wget -qO - https://github.com/openwrt/openwrt/commit/bbf39d07.patch | patch -p1
 
