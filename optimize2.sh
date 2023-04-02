@@ -12,16 +12,20 @@ svn co https://github.com/WLWolf5/test6/trunk/patch && rm -rf patch/.svn
 sed -i s#system/opkg#opkg#g package/Makefile
 # 不知道什么优化
 sed -i 's/Os/O2 -Wl,--gc-sections/g' include/target.mk
-# 修复arm64型号
-wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/master/target/linux/generic/hack-5.10/312-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch -P target/linux/generic/hack-$KERNEL_VER
+# 修复arm64型号 (Both)
+wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/master/target/linux/generic/hack-5.10/312-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch -P target/linux/generic/hack-5.10
+wget https://raw.githubusercontent.com/immortalwrt/immortalwrt/master/target/linux/generic/hack-5.10/312-arm64-cpuinfo-Add-model-name-in-proc-cpuinfo-for-64bit-ta.patch -P target/linux/generic/hack-5.15
 # 优化toolchain/musl
 wget -qO - https://github.com/openwrt/openwrt/commit/8249a8c.patch | patch -p1
 # 修复package/system/fstool
 wget -qO - https://github.com/coolsnowwolf/lede/commit/8a4db76.patch | patch -p1
-# schedutil调度
-sed -i '/CONFIG_CPU_FREQ_GOV_ONDEMAND=y/a\CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y' target/linux/ipq807x/config-$KERNEL_VER
-sed -i 's/# CONFIG_CPU_FREQ_GOV_POWERSAVE is not set/CONFIG_CPU_FREQ_GOV_POWERSAVE=y/g' target/linux/ipq807x/config-$KERNEL_VER
-sed -i 's/# CONFIG_CPU_FREQ_STAT is not set/CONFIG_CPU_FREQ_STAT=y/g' target/linux/ipq807x/config-$KERNEL_VER
+# schedutil调度 (Both)
+sed -i '/CONFIG_CPU_FREQ_GOV_ONDEMAND=y/a\CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y' target/linux/ipq807x/config-5.10
+sed -i 's/# CONFIG_CPU_FREQ_GOV_POWERSAVE is not set/CONFIG_CPU_FREQ_GOV_POWERSAVE=y/g' target/linux/ipq807x/config-5.10
+sed -i 's/# CONFIG_CPU_FREQ_STAT is not set/CONFIG_CPU_FREQ_STAT=y/g' target/linux/ipq807x/config-5.10
+sed -i '/CONFIG_CPU_FREQ_GOV_ONDEMAND=y/a\CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y' target/linux/ipq807x/config-5.15
+sed -i 's/# CONFIG_CPU_FREQ_GOV_POWERSAVE is not set/CONFIG_CPU_FREQ_GOV_POWERSAVE=y/g' target/linux/ipq807x/config-5.15
+sed -i 's/# CONFIG_CPU_FREQ_STAT is not set/CONFIG_CPU_FREQ_STAT=y/g' target/linux/ipq807x/config-5.15
 # 修改连接数上限
 sed -i '/customized in this file/a net.netfilter.nf_conntrack_max=65535' package/base-files/files/etc/sysctl.conf
 # 设置默认NTP服务器
@@ -38,7 +42,8 @@ cp -f patch/LRNG/* target/linux/generic/hack-$KERNEL_VER
 sed -i 's|pcdata(boardinfo.system or "?")|luci.sys.exec("uname -m") or "?"|g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 sed -i 's/or "1"%>/or "1"%> ( <%=luci.sys.exec("expr `cat \/sys\/class\/thermal\/thermal_zone0\/temp` \/ 1000") or "?"%> \&#8451; ) /g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 
-echo "net.netfilter.nf_conntrack_helper = 1" >>./package/kernel/linux/files/sysctl-nf-conntrack.conf
+# LEDE无需
+#echo "net.netfilter.nf_conntrack_helper = 1" >>./package/kernel/linux/files/sysctl-nf-conntrack.conf
 
 # 可选配置
 
@@ -48,7 +53,7 @@ echo "net.netfilter.nf_conntrack_helper = 1" >>./package/kernel/linux/files/sysc
 #sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/bin/config_generate
 
 
-# TCP流量优化
+# TCP流量优化 (Both)
 wget https://raw.githubusercontent.com/WLWolf5/test6/main/patch/780-v5.17-tcp-defer-skb-freeing-after-socket-lock-is-released.patch -P target/linux/generic/backport-5.15
 wget https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/backport/TCP/780-v5.17-tcp-defer-skb-freeing-after-socket-lock-is-released.patch -P target/linux/generic/backport-5.10
 
@@ -72,7 +77,9 @@ curl -Lo package/firmware/ipq-wifi/board-redmi_ax6.ipq8074 https://github.com/ro
 svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-drv/package/firmware/nss-firmware package/firmware/nss-firmware
 svn co https://github.com/robimarko/openwrt/branches/ipq807x-5.15-pr-nss-drv/package/firmware/ath11k-firmware package/firmware/ath11k-firmware
 
-# TCP-BBRv2 (5.15)
+# TCP-BBRv2 (Both)
+svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/BBRv2/kernel patch/tcp-bbr2-5.10 && rm -rf patch/tcp-bbr2-5.10/.svn
+cp -f patch/tcp-bbr2-5.10/* target/linux/generic/hack-5.10
 cp -f patch/tcp-bbr2/* target/linux/generic/hack-5.15
 
 # Bug修复 (5.10)
@@ -82,9 +89,6 @@ wget https://raw.githubusercontent.com/WLWolf5/test6/main/patch/104-RFC-ath11k-f
 svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/backport/MG-LRU patch/MG-LRU && rm -rf patch/MG-LRU/.svn
 cp -f MG-LRU/* target/linux/generic/pending-5.10
 
-# TCP-BBRv2 (5.10)
-svn co https://github.com/QiuSimons/YAOF/trunk/PATCH/BBRv2/kernel patch/tcp-bbr2-5.10 && rm -rf patch/tcp-bbr2-5.10/.svn
-cp -f patch/tcp-bbr2-5.10/* target/linux/generic/hack-5.10
 
 # Testing
 
@@ -105,7 +109,7 @@ wget -qO - https://github.com/openwrt/openwrt/commit/c21a3570.patch | patch -p1
 
 wget -qO - https://github.com/openwrt/openwrt/commit/bbf39d07.patch | patch -p1
 
-# Switch
+# Dnsmasq
 rm -rf package/network/services/dnsmasq
 svn co https://github.com/openwrt/openwrt/trunk/package/network/services/dnsmasq package/network/services/dnsmasq
 curl -Lo feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js https://raw.githubusercontent.com/openwrt/luci/master/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
