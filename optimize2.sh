@@ -9,6 +9,7 @@ svn co https://github.com/WLWolf5/test6/trunk/patch && rm -rf patch/.svn
 # 临时修复
 sed -i 's|https://source.codeaurora.org/quic|https://git.codelinaro.org/clo|' package/qca/qca-ssdk-shell/Makefile
 sed -i 's|https://source.codeaurora.org/quic|https://git.codelinaro.org/clo|' package/qca/nss/qca-nss-drv-64/Makefile
+sed -i 's|https://source.codeaurora.org/quic|https://git.codelinaro.org/clo|' package/lean/shortcut-fe/simulated-driver/Makefile
 sed -i 's|https://source.codeaurora.org/quic/cc-qrdk|https://git.codelinaro.org/clo/qsdk|' package/qca/nss/qca-nss-ecm-64/Makefile
 sed -i 's|https://source.codeaurora.org/quic/cc-qrdk|https://git.codelinaro.org/clo/qsdk|' package/qca/nss/qca-nss-clients-64/Makefile
 
@@ -46,6 +47,8 @@ cp -f patch/LRNG/* target/linux/generic/hack-5.15
 # 添加核心温度的显示 (LEDE-Luci)
 sed -i 's|pcdata(boardinfo.system or "?")|luci.sys.exec("uname -m") or "?"|g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
 sed -i 's/or "1"%>/or "1"%> ( <%=luci.sys.exec("expr `cat \/sys\/class\/thermal\/thermal_zone0\/temp` \/ 1000") or "?"%> \&#8451; ) /g' feeds/luci/modules/luci-mod-admin-full/luasrc/view/admin_status/index.htm
+# 替换成Firewall4
+sed -i "s/firewall/firewall4/g" feeds/luci/applications/luci-app-firewall/Makefile
 
 # LEDE无需
 #echo "net.netfilter.nf_conntrack_helper = 1" >>./package/kernel/linux/files/sysctl-nf-conntrack.conf
@@ -108,6 +111,8 @@ wget -qO - https://github.com/coolsnowwolf/lede/commit/e517080.patch | patch -p1
 wget -qO - https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/firewall/luci-app-firewall_add_sfe_switch.patch | patch -p1
 
 # SSL
+rm -rf package/libs/mbedtls
+svn co https://github.com/immortalwrt/immortalwrt/trunk/package/libs/mbedtls package/libs/mbedtls
 rm -rf package/libs/openssl
 svn co https://github.com/immortalwrt/immortalwrt/trunk/package/libs/openssl package/libs/openssl
 
