@@ -145,6 +145,9 @@ svn co https://github.com/QiuSimons/OpenWrt-Add/trunk/autocore package/openwrt-a
 sed -i 's/"getTempInfo" /"getTempInfo", "getCPUBench", "getCPUUsage" /g' package/openwrt-add/autocore/files/generic/luci-mod-status-autocore.json
 sed -i '/"$threads"/d' package/openwrt-add/autocore/files/x86/autocore
 
+# nftable-fullcone支持
+svn co https://github.com/kiddin9/openwrt-packages/trunk/fullconenat-nft package/openwrt-add/fullconenat-nft
+
 
 # Openwrt扩展软件包
 #git clone https://github.com/kiddin9/openwrt-packages.git package/openwrt-packages
