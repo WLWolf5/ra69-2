@@ -44,6 +44,12 @@ echo -e "net.ipv4.tcp_tw_reuse = 1\nnet.ipv4.tcp_tw_recycle = 0\nnet.ipv4.tcp_fa
 # 设置默认ip
 #sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/bin/config_generate
 
+# 追加软件包
+mkdir package/openwrt-add
+svn co https://github.com/immortalwrt/immortalwrt/trunk/package/emortal/ipv6-helper package/openwrt-add/ipv6-helper
+svn co https://github.com/immortalwrt/immortalwrt/trunk/package/emortal/default-settings package/openwrt-add/default-settings
+
+
 # TCP流量优化
 wget https://raw.githubusercontent.com/WLWolf5/test6/main/patch/780-v5.17-tcp-defer-skb-freeing-after-socket-lock-is-released.patch -P target/linux/generic/backport-5.15
 
@@ -69,7 +75,7 @@ svn co https://github.com/openwrt/openwrt/trunk/package/network/services/dnsmasq
 curl -Lo feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js https://raw.githubusercontent.com/openwrt/luci/master/modules/luci-mod-network/htdocs/luci-static/resources/view/network/dhcp.js
 
 # ShortCut-FE
-wget -qO - https://github.com/coolsnowwolf/lede/commit/e517080.patch | patch -p1
+#wget -qO - https://github.com/coolsnowwolf/lede/commit/e517080.patch | patch -p1
 wget -qO - https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/firewall/luci-app-firewall_add_sfe_switch.patch | patch -p1
 
 # SSL
