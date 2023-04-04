@@ -47,9 +47,11 @@ sed -i "s/firewall/firewall4/g" feeds/luci/applications/luci-app-firewall/Makefi
 
 # LEDE无需
 #echo "net.netfilter.nf_conntrack_helper = 1" >>./package/kernel/linux/files/sysctl-nf-conntrack.conf
+# 通用
+echo -e "net.ipv4.tcp_tw_reuse = 1\nnet.ipv4.tcp_tw_recycle = 0\nnet.ipv4.tcp_fastopen = 3\nnet.ipv4.tcp_slow_start_after_idle = 0\nfs.file-max = 51200\nnet.ipv4.ip_local_port_range = 10000 65000" >> package/kernel/linux/files/sysctl-nf-conntrack.conf
 # immortalwrt-pkg
-svn co https://github.com/immortalwrt/immortalwrt/tree/master/package/network/utils/iwinfo package/network/utils/iwinfo
-svn co https://github.com/immortalwrt/immortalwrt/tree/master/package/system/rpcd package/system/rpcd
+#svn co https://github.com/immortalwrt/immortalwrt/tree/master/package/network/utils/iwinfo package/network/utils/iwinfo
+#svn co https://github.com/immortalwrt/immortalwrt/tree/master/package/system/rpcd package/system/rpcd
 
 
 # 可选配置
