@@ -48,6 +48,10 @@ echo -e "net.ipv4.tcp_tw_reuse = 1\nnet.ipv4.tcp_tw_recycle = 0\nnet.ipv4.tcp_fa
 mkdir package/openwrt-add
 svn co https://github.com/immortalwrt/immortalwrt/trunk/package/emortal/ipv6-helper package/openwrt-add/ipv6-helper
 svn co https://github.com/immortalwrt/immortalwrt/trunk/package/emortal/default-settings package/openwrt-add/default-settings
+svn co https://github.com/coolsnowwolf/lede/trunk/package/qca/qca-rfs package/openwrt-add/qca-rfs
+scn co https://github.com/coolsnowwolf/lede/trunk/package/qca/qca-ssdk-shell package/openwrt-add/qca-ssdk-shell
+svn co https://github.com/coolsnowwolf/lede/trunk/package/qca/nss/qca-nss-gmac package/openwrt-add/qca-nss-gmac
+svn co https://github.com/coolsnowwolf/lede/trunk/package/qca/nss/qca-nss-ecm package/openwrt-add/qca-nss-ecm
 
 
 # TCP流量优化
@@ -76,7 +80,7 @@ curl -Lo feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/n
 
 # ShortCut-FE
 #wget -qO - https://github.com/coolsnowwolf/lede/commit/e517080.patch | patch -p1
-wget -qO - https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/firewall/luci-app-firewall_add_sfe_switch.patch | patch -p1
+#wget -qO - https://raw.githubusercontent.com/QiuSimons/YAOF/22.03/PATCH/firewall/luci-app-firewall_add_sfe_switch.patch | patch -p1
 
 # SSL
 rm -rf package/libs/mbedtls
@@ -94,7 +98,6 @@ sed -i '/mirror02/d' scripts/download.pl
 sed -i 's/option timeout 30/option timeout 60/g' package/system/rpcd/files/rpcd.config
 
 # AutoCore
-mkdir package/openwrt-add
 svn co https://github.com/QiuSimons/OpenWrt-Add/trunk/autocore package/openwrt-add/autocore
 sed -i 's/"getTempInfo" /"getTempInfo", "getCPUBench", "getCPUUsage" /g' package/openwrt-add/autocore/files/generic/luci-mod-status-autocore.json
 sed -i '/"$threads"/d' package/openwrt-add/autocore/files/x86/autocore
