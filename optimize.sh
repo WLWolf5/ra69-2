@@ -116,6 +116,8 @@ wget -qO - https://github.com/openwrt/openwrt/commit/b839f3d5.patch | patch -p1
 
 wget -qO - https://github.com/openwrt/openwrt/commit/bbf39d07.patch | patch -p1
 
+wget -P target/linux/generic/pending-5.10/ https://github.com/openwrt/openwrt/raw/v22.03.3/target/linux/generic/pending-5.10/613-netfilter_optional_tcp_window_check.patch
+
 # Dnsmasq
 rm -rf package/network/services/dnsmasq
 svn co https://github.com/openwrt/openwrt/trunk/package/network/services/dnsmasq package/network/services/dnsmasq
