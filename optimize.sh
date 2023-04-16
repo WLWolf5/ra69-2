@@ -132,6 +132,7 @@ rm -rf package/libs/mbedtls
 svn co https://github.com/immortalwrt/immortalwrt/trunk/package/libs/mbedtls package/libs/mbedtls
 rm -rf package/libs/openssl
 svn co https://github.com/immortalwrt/immortalwrt/trunk/package/libs/openssl package/libs/openssl
+curl -Lo include/openssl-module.mk https://raw.githubusercontent.com/immortalwrt/immortalwrt/master/include/openssl-module.mk
 
 # 替换Download脚本
 curl -Lo scripts/download.pl https://raw.githubusercontent.com/immortalwrt/immortalwrt/master/scripts/download.pl
